@@ -1,0 +1,689 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>혼(魂, Spirit) — 3D 게임 기획서</title>
+<style>
+  :root {
+    --bg: #0b0d12;
+    --bg-soft: #12151d;
+    --panel: #171b25;
+    --panel-2: #1d2230;
+    --line: #2a3040;
+    --text: #e8e6e1;
+    --muted: #9aa0ad;
+    --accent: #7fd1d4;     /* 청록 도깨비불 */
+    --accent-2: #c8a96a;   /* 한지/금박 */
+    --danger: #d97b7b;
+    --glow: rgba(127, 209, 212, 0.35);
+    --maxw: 980px;
+  }
+
+  * { box-sizing: border-box; }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    margin: 0;
+    background:
+      radial-gradient(1200px 600px at 80% -10%, rgba(127,209,212,0.08), transparent 60%),
+      radial-gradient(900px 500px at 0% 20%, rgba(200,169,106,0.06), transparent 55%),
+      var(--bg);
+    color: var(--text);
+    font-family: "Pretendard", "Apple SD Gothic Neo", "Malgun Gothic", system-ui, -apple-system, sans-serif;
+    line-height: 1.7;
+    letter-spacing: -0.01em;
+  }
+
+  a { color: var(--accent); }
+
+  /* ===== Hero ===== */
+  .hero {
+    position: relative;
+    min-height: 78vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    overflow: hidden;
+    padding: 80px 20px;
+    border-bottom: 1px solid var(--line);
+  }
+
+  .hero::before {
+    content: "魂";
+    position: absolute;
+    font-size: 52vh;
+    font-weight: 800;
+    color: rgba(127, 209, 212, 0.045);
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    pointer-events: none;
+    user-select: none;
+    line-height: 1;
+  }
+
+  .embers {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+  }
+  .ember {
+    position: absolute;
+    bottom: -10px;
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: var(--accent);
+    box-shadow: 0 0 12px 3px var(--glow);
+    opacity: 0;
+    animation: rise linear infinite;
+  }
+  @keyframes rise {
+    0%   { transform: translateY(0) scale(1); opacity: 0; }
+    10%  { opacity: 0.9; }
+    90%  { opacity: 0.5; }
+    100% { transform: translateY(-85vh) scale(0.3); opacity: 0; }
+  }
+
+  .hero-tag {
+    position: relative;
+    z-index: 2;
+    color: var(--accent);
+    font-size: 0.95rem;
+    letter-spacing: 0.4em;
+    text-transform: uppercase;
+    margin-bottom: 18px;
+  }
+  .hero h1 {
+    position: relative;
+    z-index: 2;
+    font-size: clamp(3rem, 9vw, 6rem);
+    margin: 0;
+    font-weight: 800;
+    text-shadow: 0 0 40px var(--glow);
+  }
+  .hero h1 small {
+    display: block;
+    font-size: clamp(1rem, 2.5vw, 1.4rem);
+    font-weight: 400;
+    color: var(--muted);
+    letter-spacing: 0.2em;
+    margin-top: 14px;
+  }
+  .hero p.lead {
+    position: relative;
+    z-index: 2;
+    max-width: 640px;
+    color: var(--muted);
+    font-size: 1.1rem;
+    margin: 28px auto 0;
+  }
+  .hero-meta {
+    position: relative;
+    z-index: 2;
+    margin-top: 36px;
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+  .chip {
+    border: 1px solid var(--line);
+    background: rgba(255,255,255,0.02);
+    border-radius: 999px;
+    padding: 8px 18px;
+    font-size: 0.85rem;
+    color: var(--text);
+  }
+  .chip b { color: var(--accent-2); font-weight: 600; }
+
+  /* ===== Nav ===== */
+  nav {
+    position: sticky;
+    top: 0;
+    z-index: 50;
+    background: rgba(11, 13, 18, 0.82);
+    backdrop-filter: blur(10px);
+    border-bottom: 1px solid var(--line);
+  }
+  nav .inner {
+    max-width: var(--maxw);
+    margin: 0 auto;
+    display: flex;
+    gap: 6px;
+    padding: 10px 20px;
+    overflow-x: auto;
+    scrollbar-width: none;
+  }
+  nav .inner::-webkit-scrollbar { display: none; }
+  nav a {
+    white-space: nowrap;
+    padding: 8px 14px;
+    border-radius: 8px;
+    color: var(--muted);
+    text-decoration: none;
+    font-size: 0.9rem;
+    transition: 0.2s;
+  }
+  nav a:hover { color: var(--text); background: var(--panel-2); }
+
+  /* ===== Layout ===== */
+  main {
+    max-width: var(--maxw);
+    margin: 0 auto;
+    padding: 20px;
+  }
+
+  section {
+    padding: 56px 0 24px;
+    border-bottom: 1px solid var(--line);
+  }
+  section:last-child { border-bottom: none; }
+
+  .sec-head {
+    display: flex;
+    align-items: baseline;
+    gap: 16px;
+    margin-bottom: 28px;
+  }
+  .sec-num {
+    color: var(--accent);
+    font-size: 0.9rem;
+    font-weight: 700;
+    letter-spacing: 0.2em;
+  }
+  h2 {
+    font-size: clamp(1.6rem, 4vw, 2.2rem);
+    margin: 0;
+    font-weight: 700;
+  }
+  h3 {
+    color: var(--accent-2);
+    font-size: 1.15rem;
+    margin: 28px 0 12px;
+  }
+  p { color: var(--text); }
+  .muted { color: var(--muted); }
+
+  .grid {
+    display: grid;
+    gap: 16px;
+  }
+  .grid.cols-2 { grid-template-columns: repeat(2, 1fr); }
+  .grid.cols-3 { grid-template-columns: repeat(3, 1fr); }
+
+  .card {
+    background: linear-gradient(180deg, var(--panel), var(--bg-soft));
+    border: 1px solid var(--line);
+    border-radius: 14px;
+    padding: 22px;
+    transition: 0.25s;
+  }
+  .card:hover {
+    border-color: rgba(127,209,212,0.4);
+    transform: translateY(-3px);
+    box-shadow: 0 10px 30px rgba(0,0,0,0.4);
+  }
+  .card h4 {
+    margin: 0 0 8px;
+    font-size: 1.05rem;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .card .icon {
+    font-size: 1.3rem;
+    filter: drop-shadow(0 0 8px var(--glow));
+  }
+  .card p { margin: 0; color: var(--muted); font-size: 0.95rem; }
+
+  ul.clean { list-style: none; padding: 0; margin: 0; }
+  ul.clean li {
+    padding: 10px 0 10px 26px;
+    position: relative;
+    border-bottom: 1px dashed var(--line);
+    color: var(--text);
+  }
+  ul.clean li:last-child { border-bottom: none; }
+  ul.clean li::before {
+    content: "魂";
+    position: absolute;
+    left: 0;
+    top: 9px;
+    color: var(--accent);
+    font-size: 0.85rem;
+  }
+
+  .callout {
+    background: rgba(127,209,212,0.06);
+    border-left: 3px solid var(--accent);
+    border-radius: 0 12px 12px 0;
+    padding: 18px 22px;
+    margin: 20px 0;
+    color: var(--text);
+  }
+  .callout.warm {
+    background: rgba(200,169,106,0.06);
+    border-left-color: var(--accent-2);
+  }
+
+  /* timeline */
+  .timeline { position: relative; margin-left: 10px; padding-left: 28px; }
+  .timeline::before {
+    content: "";
+    position: absolute;
+    left: 0; top: 6px; bottom: 6px;
+    width: 2px;
+    background: linear-gradient(var(--accent), transparent);
+  }
+  .t-item { position: relative; padding-bottom: 26px; }
+  .t-item::before {
+    content: "";
+    position: absolute;
+    left: -34px; top: 6px;
+    width: 12px; height: 12px;
+    border-radius: 50%;
+    background: var(--accent);
+    box-shadow: 0 0 12px var(--glow);
+  }
+  .t-item .phase { color: var(--accent-2); font-weight: 700; font-size: 0.85rem; letter-spacing: 0.1em; }
+  .t-item h4 { margin: 4px 0 6px; }
+
+  /* table */
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 14px;
+    font-size: 0.95rem;
+  }
+  th, td {
+    text-align: left;
+    padding: 12px 14px;
+    border-bottom: 1px solid var(--line);
+  }
+  th { color: var(--accent); font-weight: 600; }
+  tr:hover td { background: rgba(255,255,255,0.02); }
+
+  .pill {
+    display: inline-block;
+    padding: 2px 10px;
+    border-radius: 999px;
+    font-size: 0.75rem;
+    font-weight: 600;
+  }
+  .pill.core { background: rgba(127,209,212,0.15); color: var(--accent); }
+  .pill.opt  { background: rgba(200,169,106,0.15); color: var(--accent-2); }
+
+  footer {
+    text-align: center;
+    padding: 40px 20px 60px;
+    color: var(--muted);
+    font-size: 0.85rem;
+  }
+  footer .seal {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 64px; height: 64px;
+    border: 2px solid var(--accent-2);
+    border-radius: 12px;
+    color: var(--accent-2);
+    font-size: 1.8rem;
+    font-weight: 800;
+    margin-bottom: 16px;
+    transform: rotate(-4deg);
+  }
+
+  @media (max-width: 720px) {
+    .grid.cols-2, .grid.cols-3 { grid-template-columns: 1fr; }
+    .sec-head { flex-direction: column; gap: 4px; }
+  }
+</style>
+</head>
+<body>
+
+<!-- ===== HERO ===== -->
+<header class="hero">
+  <div class="embers" id="embers"></div>
+  <div class="hero-tag">2026 Summer Game Jam · 3D Project</div>
+  <h1>혼 <small>魂 · Spirit — 잊혀진 마음을 잇다</small></h1>
+  <p class="lead">
+    눈에 보이지 않지만 사람과 사람을, 기억과 감정을 잇는 한국 고유의 정서 ‘혼’.
+    당신은 흩어진 혼을 모아 잊혀진 이야기를 다시 엮어내는 <b>혼잡이</b>가 됩니다.
+  </p>
+  <div class="hero-meta">
+    <span class="chip">장르 <b>3D 어드벤처 / 퍼즐 호러</b></span>
+    <span class="chip">엔진 <b>Unity (URP)</b></span>
+    <span class="chip">플레이 <b>30~45분 1회차</b></span>
+    <span class="chip">시점 <b>3인칭</b></span>
+  </div>
+</header>
+
+<!-- ===== NAV ===== -->
+<nav>
+  <div class="inner">
+    <a href="#concept">기획 의도</a>
+    <a href="#story">세계관·스토리</a>
+    <a href="#loop">핵심 게임플레이</a>
+    <a href="#mechanic">혼 메커닉</a>
+    <a href="#stage">스테이지</a>
+    <a href="#art">아트·사운드</a>
+    <a href="#tech">기술·3D</a>
+    <a href="#scope">범위·일정</a>
+  </div>
+</nav>
+
+<main>
+
+  <!-- ===== 기획 의도 ===== -->
+  <section id="concept">
+    <div class="sec-head">
+      <span class="sec-num">01</span>
+      <h2>기획 의도 — 왜 ‘혼’인가</h2>
+    </div>
+    <p>
+      ‘혼’은 단순한 영혼이나 귀신이 아닙니다. 사람과 사람을 연결하고, 기억과 감정, 이야기와 문화를 이어주는
+      한국 고유의 정서입니다. K-컬처가 전 세계의 주목을 받는 지금, 우리는 이 정서를
+      <b>‘잇는다(연결)’</b>는 행위 자체를 게임의 핵심 동사로 삼았습니다.
+    </p>
+    <div class="callout">
+      <b>한 줄 콘셉트.</b> “끊어진 혼의 실을 다시 이어, 사람들이 미처 전하지 못한 마음을 완성한다.”
+    </div>
+    <div class="grid cols-3" style="margin-top:22px">
+      <div class="card">
+        <h4><span class="icon">🪢</span> 잇다</h4>
+        <p>플레이의 핵심은 ‘전투’가 아닌 ‘연결’. 흩어진 혼의 조각을 이어 기억을 복원합니다.</p>
+      </div>
+      <div class="card">
+        <h4><span class="icon">🏮</span> 한국적 감성</h4>
+        <p>한옥, 청사초롱, 도깨비불, 정화수, 한지(韓紙) 등 전통 모티프를 3D 공간으로 재해석.</p>
+      </div>
+      <div class="card">
+        <h4><span class="icon">🌙</span> 여름 납량</h4>
+        <p>공포가 목적이 아니라 ‘정(情)’을 향한 통로. 무섭지만 끝내 따뜻한 여름밤의 정서.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== 세계관 ===== -->
+  <section id="story">
+    <div class="sec-head">
+      <span class="sec-num">02</span>
+      <h2>세계관 & 스토리</h2>
+    </div>
+    <p>
+      재개발로 곧 사라질 오래된 마을 <b>‘이실마을’</b>. 떠난 사람들의 못다 한 마음이 ‘혼’이 되어
+      골목과 빈집을 떠돕니다. 주인공은 혼의 실을 다루는 옛 직능, <b>혼잡이</b>의 마지막 후손입니다.
+      여름 백중(百中)날 밤, 마을의 혼을 모두 거두어 ‘저편’으로 곱게 보내드려야 합니다.
+    </p>
+
+    <h3>주요 인물</h3>
+    <div class="grid cols-2">
+      <div class="card">
+        <h4><span class="icon">🧵</span> 주인공 · 단오</h4>
+        <p>혼잡이의 손녀. 청사초롱과 혼실(魂絲)을 다룬다. 무기는 없고, 오직 ‘듣고 잇는’ 능력으로 혼과 교감한다.</p>
+      </div>
+      <div class="card">
+        <h4><span class="icon">🐯</span> 길잡이 · 삽사리</h4>
+        <p>혼을 볼 수 있는 영물(靈物) 삽살개. 위험한 ‘맺힌 혼’을 향해 짖어 플레이어에게 단서를 준다.</p>
+      </div>
+      <div class="card">
+        <h4><span class="icon">👵</span> 떠도는 혼들</h4>
+        <p>각자 못다 한 사연을 지닌 마을 사람들. 잃어버린 편지, 전하지 못한 약속, 묻어둔 사과 등.</p>
+      </div>
+      <div class="card">
+        <h4><span class="icon">🌑</span> 맺힌 혼 (안타고니스트)</h4>
+        <p>원망과 후회가 굳어 ‘한(恨)’이 된 존재. 직접 싸우지 않고, 그 사연을 ‘풀어줌’으로써 정화한다.</p>
+      </div>
+    </div>
+
+    <div class="callout warm">
+      <b>테마 메시지.</b> 혼은 두려움의 대상이 아니라 ‘아직 전해지지 못한 마음’이다.
+      플레이어는 공포를 ‘해소’하는 것이 아니라 ‘이해’함으로써 게임을 끝낸다.
+    </div>
+  </section>
+
+  <!-- ===== 핵심 루프 ===== -->
+  <section id="loop">
+    <div class="sec-head">
+      <span class="sec-num">03</span>
+      <h2>핵심 게임플레이 루프</h2>
+    </div>
+    <p class="muted">탐험 → 혼 감지 → 기억 수집 → 혼실 잇기(퍼즐) → 정화 → 다음 장소 해금</p>
+    <div class="timeline" style="margin-top:24px">
+      <div class="t-item">
+        <div class="phase">STEP 1 · 탐험</div>
+        <h4>어둠 속 마을을 거닐다</h4>
+        <p class="muted">청사초롱(손전등 대체)으로 한옥 골목을 탐색한다. 빛이 닿는 범위만 또렷하게 보인다.</p>
+      </div>
+      <div class="t-item">
+        <div class="phase">STEP 2 · 감지</div>
+        <h4>혼의 잔향을 듣다</h4>
+        <p class="muted">삽사리의 반응과 화면의 ‘혼 떨림’ 이펙트로 가까운 혼을 감지한다.</p>
+      </div>
+      <div class="t-item">
+        <div class="phase">STEP 3 · 기억 수집</div>
+        <h4>흩어진 기억 조각을 줍다</h4>
+        <p class="muted">유품(편지, 사진, 물건)을 조사해 ‘혼의 사연’ 단서를 모은다.</p>
+      </div>
+      <div class="t-item">
+        <div class="phase">STEP 4 · 혼실 잇기</div>
+        <h4>끊긴 마음을 다시 잇다 (메인 퍼즐)</h4>
+        <p class="muted">기억의 순서·인과를 올바르게 연결해 혼의 이야기를 완성한다.</p>
+      </div>
+      <div class="t-item">
+        <div class="phase">STEP 5 · 정화</div>
+        <h4>혼을 저편으로 배웅하다</h4>
+        <p class="muted">이야기가 완성되면 혼이 도깨비불로 화해 하늘로 오른다. 새 길이 열린다.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== 혼 메커닉 ===== -->
+  <section id="mechanic">
+    <div class="sec-head">
+      <span class="sec-num">04</span>
+      <h2>핵심 메커닉 — ‘혼실 잇기’</h2>
+    </div>
+    <p>
+      이 게임의 정체성은 <b>혼실(魂絲)</b> 시스템입니다. 플레이어는 공간에 떠 있는 빛의 매듭(기억 노드)들을
+      3D 공간에서 끌어 연결합니다. 단순 선잇기가 아니라, <b>인과와 감정의 흐름</b>을 읽어야 풀립니다.
+    </p>
+    <div class="grid cols-2" style="margin-top:18px">
+      <div class="card">
+        <h4><span class="icon">🔗</span> 기억 노드 연결</h4>
+        <p>방 곳곳에 떠 있는 기억 조각을 시간·감정 순서대로 이으면 ‘완결된 이야기’가 재생된다.</p>
+      </div>
+      <div class="card">
+        <h4><span class="icon">🏮</span> 청사초롱 빛 다루기</h4>
+        <p>특정 색의 빛을 비추면 숨은 혼실/글자가 드러난다(청 = 슬픔, 적 = 분노, 백 = 그리움).</p>
+      </div>
+      <div class="card">
+        <h4><span class="icon">🪞</span> 정화수 거울</h4>
+        <p>물그릇에 비친 ‘다른 시간대’의 풍경을 단서로 과거-현재를 대조하는 퍼즐.</p>
+      </div>
+      <div class="card">
+        <h4><span class="icon">🐾</span> 삽사리 동행</h4>
+        <p>위험한 ‘맺힌 혼’의 위치와 안전 경로를 짖음·꼬리로 안내. 공포 구간의 길잡이.</p>
+      </div>
+    </div>
+
+    <h3>긴장(납량) 설계 — ‘쫓김’ 없는 공포</h3>
+    <ul class="clean">
+      <li>전투·즉사 대신 ‘소리·시야·잔향’으로 만드는 분위기 공포에 집중한다.</li>
+      <li>맺힌 혼이 나타나면 청사초롱 불을 끄고 숨거나, 올바른 기억을 제시해 진정시킨다.</li>
+      <li>공포의 절정 직후 반드시 ‘따뜻한 해소(정화)’를 배치해 감정의 카타르시스를 준다.</li>
+    </ul>
+  </section>
+
+  <!-- ===== 스테이지 ===== -->
+  <section id="stage">
+    <div class="sec-head">
+      <span class="sec-num">05</span>
+      <h2>스테이지 구성</h2>
+    </div>
+    <p class="muted">게임잼 범위에 맞춘 3개 핵심 무대 + 엔딩. 각 무대는 하나의 혼=하나의 사연.</p>
+    <table>
+      <thead>
+        <tr><th>무대</th><th>장소</th><th>혼의 사연</th><th>핵심 퍼즐</th></tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>1막</td>
+          <td>골목 어귀 · 평상</td>
+          <td>전하지 못한 편지를 품은 노인의 혼</td>
+          <td>편지 조각을 시간순으로 잇기 (튜토리얼)</td>
+        </tr>
+        <tr>
+          <td>2막</td>
+          <td>빈 한옥 · 안방</td>
+          <td>약속을 못 지킨 자매의 엇갈린 기억</td>
+          <td>정화수 거울로 과거-현재 대조</td>
+        </tr>
+        <tr>
+          <td>3막</td>
+          <td>마을 당산나무</td>
+          <td>‘한(恨)’으로 굳은 맺힌 혼</td>
+          <td>청사초롱 빛 색 전환 + 숨기 + 혼실 잇기 종합</td>
+        </tr>
+        <tr>
+          <td>엔딩</td>
+          <td>강가 · 백중 등불</td>
+          <td>거둔 혼들을 함께 배웅</td>
+          <td>플레이어의 선택에 따른 분기 연출</td>
+        </tr>
+      </tbody>
+    </table>
+  </section>
+
+  <!-- ===== 아트 사운드 ===== -->
+  <section id="art">
+    <div class="sec-head">
+      <span class="sec-num">06</span>
+      <h2>아트 디렉션 & 사운드</h2>
+    </div>
+    <div class="grid cols-2">
+      <div class="card">
+        <h4><span class="icon">🎨</span> 비주얼 톤</h4>
+        <p>먹빛 어둠 위에 청록 도깨비불과 금빛 한지. 저채도 배경 + 고채도 ‘혼 빛’으로 시선 유도.</p>
+      </div>
+      <div class="card">
+        <h4><span class="icon">🏯</span> 환경 모티프</h4>
+        <p>한옥, 기와, 청사초롱, 창호지 문, 장독대, 당산나무, 정화수, 한지 등불.</p>
+      </div>
+      <div class="card">
+        <h4><span class="icon">🎵</span> 사운드</h4>
+        <p>대금·해금·생황 등 국악기 + 앰비언트. 매미·풍경(風磬)·물소리로 여름밤 공간감.</p>
+      </div>
+      <div class="card">
+        <h4><span class="icon">🗣️</span> 연출</h4>
+        <p>최소한의 텍스트와 ‘소리 기억’ 중심 서사. 보이스 없이 음향과 빛으로 감정 전달.</p>
+      </div>
+    </div>
+    <div class="callout">
+      <b>컬러 키.</b>
+      <span class="pill core">청록 #7FD1D4</span> 혼·도깨비불 ·
+      <span class="pill opt">금박 #C8A96A</span> 기억·한지 · 먹빛 #0B0D12 배경.
+    </div>
+  </section>
+
+  <!-- ===== 기술 ===== -->
+  <section id="tech">
+    <div class="sec-head">
+      <span class="sec-num">07</span>
+      <h2>기술 사양 (3D 구현)</h2>
+    </div>
+    <div class="grid cols-2">
+      <div class="card">
+        <h4><span class="icon">🧩</span> 엔진 / 파이프라인</h4>
+        <p>Unity 6 · URP. 모바일~PC 대응. 후처리(Bloom, Vignette, Fog)로 혼 분위기 구현.</p>
+      </div>
+      <div class="card">
+        <h4><span class="icon">💡</span> 라이팅</h4>
+        <p>실시간 포인트라이트 기반 청사초롱, 라이트 쿠키 + 볼류메트릭 안개로 어둠 연출.</p>
+      </div>
+      <div class="card">
+        <h4><span class="icon">🎮</span> 컨트롤</h4>
+        <p>3인칭 이동(WASD/스틱) + 빛 비추기 + 혼실 드래그 연결(마우스/스틱 포인터).</p>
+      </div>
+      <div class="card">
+        <h4><span class="icon">⚙️</span> 핵심 시스템</h4>
+        <p>혼실 그래프 연결 판정, 기억 시퀀스 검증, 빛-색 인터랙션, 삽사리 AI(웨이포인트).</p>
+      </div>
+    </div>
+    <h3>구현 우선순위</h3>
+    <ul class="clean">
+      <li><span class="pill core">필수</span> 3인칭 이동 · 청사초롱 빛 · 혼실 잇기 퍼즐 1종 · 정화 연출</li>
+      <li><span class="pill core">필수</span> 1개 완성 스테이지(1막)로 핵심 루프 검증</li>
+      <li><span class="pill opt">확장</span> 정화수 거울, 빛 색 전환, 맺힌 혼 숨기 구간</li>
+      <li><span class="pill opt">확장</span> 삽사리 동행 AI, 엔딩 분기</li>
+    </ul>
+  </section>
+
+  <!-- ===== 범위 일정 ===== -->
+  <section id="scope">
+    <div class="sec-head">
+      <span class="sec-num">08</span>
+      <h2>게임잼 범위 & 일정</h2>
+    </div>
+    <div class="timeline">
+      <div class="t-item">
+        <div class="phase">DAY 1</div>
+        <h4>프로토타입 · 핵심 루프</h4>
+        <p class="muted">3인칭 컨트롤러, 청사초롱 빛, 혼실 잇기 그레이박스 퍼즐 구현.</p>
+      </div>
+      <div class="t-item">
+        <div class="phase">DAY 2</div>
+        <h4>콘텐츠 · 1막 완성</h4>
+        <p class="muted">한옥 골목 에셋 배치, 1막 사연·기억 노드, 정화 연출, 기본 사운드.</p>
+      </div>
+      <div class="t-item">
+        <div class="phase">DAY 3</div>
+        <h4>폴리시 · 발표</h4>
+        <p class="muted">라이팅/후처리 다듬기, 2막 일부 확장, 빌드·트레일러·발표 준비.</p>
+      </div>
+    </div>
+    <div class="callout warm">
+      <b>최소 성공 기준(MVP).</b> “1개의 혼을 만나 그 사연을 이해하고, 혼실로 마음을 이어 배웅하는” 한 사이클을
+      3D 공간에서 완결성 있게 체험할 수 있다.
+    </div>
+  </section>
+
+</main>
+
+<footer>
+  <div class="seal">魂</div>
+  <p>혼(魂, Spirit) — 3D Game Design Document<br>
+  2026 Summer Game Jam · 보이지 않는 마음을 잇는 이야기</p>
+</footer>
+
+<script>
+  // 도깨비불 파티클 생성
+  (function () {
+    const wrap = document.getElementById('embers');
+    const count = 26;
+    for (let i = 0; i < count; i++) {
+      const e = document.createElement('span');
+      e.className = 'ember';
+      const size = 3 + Math.random() * 6;
+      e.style.left = Math.random() * 100 + 'vw';
+      e.style.width = size + 'px';
+      e.style.height = size + 'px';
+      e.style.animationDuration = (6 + Math.random() * 8) + 's';
+      e.style.animationDelay = (Math.random() * 8) + 's';
+      e.style.opacity = 0;
+      if (Math.random() > 0.7) {
+        e.style.background = '#c8a96a';
+        e.style.boxShadow = '0 0 12px 3px rgba(200,169,106,0.35)';
+      }
+      wrap.appendChild(e);
+    }
+  })();
+</script>
+
+</body>
+</html>
